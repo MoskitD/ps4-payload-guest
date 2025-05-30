@@ -30,6 +30,7 @@ public:
   static void SanitizeJsonString(std::string &p_Input);
   static std::wstring StrToWstr(const std::string &p_Input);
 
+  static bool IsPS5();
   static bool IsJailbroken();
 
   static int MemoryProtectedCreate(MemoryProtected **p_Memory, size_t p_Size);
@@ -39,7 +40,8 @@ public:
   static int MemoryProtectedGetSize(MemoryProtected *p_Memory, size_t *p_Size);
 
   static void LaunchShellcode(Application *p_App, const std::string &p_Path);
-  static bool SendPayload(Application *p_App, const std::string p_IpAddress, uint16_t p_Port, const std::string &p_PayloadPath);
+  static bool SendPayloadPost(Application *p_App, const std::string p_Url, const std::string &p_PayloadPath, bool raw = true);
+  static bool SendPayloadSocket(Application *p_App, const std::string p_IpAddress, uint16_t p_Port, const std::string &p_PayloadPath);
 
   template <typename I>
   static I AlignUp(I p_Value, I p_Align) {

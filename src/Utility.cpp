@@ -20,6 +20,10 @@
 #include <cstdlib>
 #include <string>
 
+// TODO: From https://github.com/bucanero/oosdk_libraries
+// #define CURL_STATICLIB
+// #include <curl/curl.h>
+
 #include "libLog.h"
 #include "notifi.h"
 
@@ -58,6 +62,11 @@ std::wstring Utility::StrToWstr(const std::string &p_Input) {
   delete[] s_CharDestination;
   std::setlocale(LC_ALL, s_CurrentLocale.c_str());
   return s_Result;
+}
+
+bool Utility::IsPS5() {
+  // TODO:
+  return false;
 }
 
 bool Utility::IsJailbroken() {
@@ -225,7 +234,78 @@ void Utility::LaunchShellcode(Application *p_App, const std::string &p_Path) {
   logKernel(LL_Debug, "%s", "Exiting LaunchShellcode()");
 }
 
-bool Utility::SendPayload(Application *p_App, const std::string p_IpAddress, uint16_t p_Port, const std::string &p_PayloadPath) {
+// TODO: Finish/Test this function
+bool Utility::SendPayloadPost(Application *p_App, const std::string p_Url, const std::string &p_PayloadPath, bool raw) {
+  // Application *s_App = p_App;
+  bool s_Return = false;
+
+  // if (!s_App) {
+  //   logKernel(LL_Debug, "%s", "Invalid application object");
+  //   return s_Return;
+  // }
+
+  // FILE *s_PayloadFilePointer = std::fopen(p_PayloadPath.c_str(), "r");
+  // if (!s_PayloadFilePointer) {
+  //   // notifi(NULL, "%s", s_App->Lang->Get("errorSendPayloadOpen").c_str());
+  //   return s_Return;
+  // }
+
+  // std::fseek(s_PayloadFilePointer, 0, SEEK_END);
+  // size_t s_PayloadFilesize = std::ftell(s_PayloadFilePointer);
+  // std::fseek(s_PayloadFilePointer, 0, SEEK_SET);
+
+  // void *s_PayloadBuffer = std::calloc(sizeof(char), s_PayloadFilesize);
+  // if (!s_PayloadBuffer) {
+  //   std::fclose(s_PayloadFilePointer);
+  //   // notifi(NULL, "%s", s_App->Lang->Get("errorSendPayloadBuffer").c_str());
+  //   return s_Return;
+  // }
+
+  // if (std::fread(s_PayloadBuffer, sizeof(char), s_PayloadFilesize, s_PayloadFilePointer) <= 0) {
+  //   std::fclose(s_PayloadFilePointer);
+  //   std::free(s_PayloadBuffer);
+  //   // notifi(NULL, "%s", s_App->Lang->Get("errorSendPayloadRead").c_str());
+  //   return s_Return;
+  // }
+  // std::fclose(s_PayloadFilePointer);
+
+  // // TODO: Have payload of s_PayloadFilesize stored at s_PayloadBuffer
+  // // TODO: Send with curl or use curl functions on file directly below?
+
+  // CURL *s_Curl;
+  // curl_global_init(CURL_GLOBAL_ALL);
+
+  // s_Curl = curl_easy_init();
+  // if (!s_Curl) {
+  //   curl_global_cleanup();
+  //   return s_Return;
+  // }
+
+  // curl_easy_setopt(s_Curl, CURLOPT_URL, p_Url);
+  // // curl_easy_setopt(s_Curl, CURLOPT_POST, 1L);
+  // if (raw) {
+  //   // curl_easy_setopt(s_Curl, CURLOPT_READDATA, &file); // ifstream
+  //   // curl_easy_setopt(s_Curl, CURLOPT_POSTFIELDSIZE, file_size);
+  // } else {
+  //   // curl_easy_setopt(s_Curl, CURLOPT_POSTFIELDS, "elf=???&args=&pipe=1"); // TODO: // pipe=0?
+  // }
+
+  // CURLcode s_Response = curl_easy_perform(s_Curl);
+  // if(s_Response == CURLE_OK) {
+  //   s_Return = true;
+  // } else {
+  //   // fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(s_Response));
+  // }
+
+  // curl_easy_cleanup(s_Curl);
+
+  // curl_global_cleanup();
+
+  return s_Return;
+}
+
+// TODO: Fix for GoldHen socket loader breaking stuff, don't just assume it's correct anymore
+bool Utility::SendPayloadSocket(Application *p_App, const std::string p_IpAddress, uint16_t p_Port, const std::string &p_PayloadPath) {
   Application *s_App = p_App;
 
   if (!s_App) {

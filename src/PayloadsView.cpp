@@ -117,13 +117,13 @@ std::vector<Payload> PayloadsView::ParseFiles(const std::string &p_Path) {
   if (s_Dir) {
     struct dirent *s_Entry;
     while ((s_Entry = readdir(s_Dir)) != NULL) {
-      // Skip anything that is not a `.bin`
+      // Skip anything that is not a `.bin` or `.elf`
       if (s_Entry->d_namlen < 5) {
         continue;
       }
       std::string s_Filename = std::string(s_Entry->d_name).substr(0, s_Entry->d_namlen - 4);
       std::string s_Extension = Utility::LastChars(std::string(s_Entry->d_name), 4);
-      if (strncasecmp(s_Extension.c_str(), ".bin", 4) != 0) {
+      if (strncasecmp(s_Extension.c_str(), ".bin", 4) != 0 && strncasecmp(s_Extension.c_str(), ".elf", 4) != 0) {
         continue;
       }
 
@@ -318,8 +318,23 @@ int PayloadsView::Update() {
           if (m_PayloadTimer == 0 || m_PayloadTimer + (5 * 1000000) < sceKernelGetProcessTime()) {
             logKernel(LL_Debug, "Loading: %s", m_Payloads[m_PayloadSelected].location.c_str());
             // notifi(NULL, "Loading: %s", m_Payloads[m_PayloadSelected].location.c_str()); // Pop notification
-            if (!Utility::SendPayload(m_App, "127.0.0.1", 9090, m_Payloads[m_PayloadSelected].location)) { // Send to GoldHEN's loader
-              Utility::LaunchShellcode(m_App, m_Payloads[m_PayloadSelected].location); // Launch here
+            if (!Utility::IsPS5()) {
+              if (
+                !Utility::SendPayloadSocket(m_App, "127.0.0.1", 9021, m_Payloads[m_PayloadSelected].location) && // Send to Mira loader
+                !Utility::SendPayloadSocket(m_App, "127.0.0.1", 9090, m_Payloads[m_PayloadSelected].location)    // Send to GoldHEN loader
+              ) {
+                Utility::LaunchShellcode(m_App, m_Payloads[m_PayloadSelected].location); // Launch here
+              }
+            } else {
+              if (
+                !Utility::SendPayloadSocket(m_App, "127.0.0.1", 9020, m_Payloads[m_PayloadSelected].location) &&                // Send to default loader
+                !Utility::SendPayloadSocket(m_App, "127.0.0.1", 9021, m_Payloads[m_PayloadSelected].location) &&                // Send to elfldr
+                !Utility::SendPayloadPost(m_App, "http://127.0.0.1:8080/elfldr", m_Payloads[m_PayloadSelected].location, false) // Send to websrv elfldr
+              ) {
+                // TODO: Bundle elfldr (?)
+                notifi(NULL, "Could not send payload to loader");
+                // logKernel(LL_Debug, "Could not send payload to loader");
+              }
             }
             RefreshPayloadList(false);
             m_PayloadTimer = sceKernelGetProcessTime();
